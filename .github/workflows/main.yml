@@ -1,0 +1,40 @@
+name: dotnet test
+
+on: [push]
+
+jobs:
+  RunUnitTest:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dotnet-version: ['6.x']
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+      - name: Install dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --configuration Release --no-restore LWSKubernetesUnitTest/LWSKubernetesUnitTest.csproj
+      - name: Test
+        run: dotnet test --no-restore --verbosity normal LWSKubernetesUnitTest/LWSKubernetesUnitTest.csproj
+
+  RunIntegrationTest:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dotnet-version: ['6.x']
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+      - name: Install dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --configuration Release --no-restore LWSKubernetesIntegrationTest/LWSKubernetesIntegrationTest.csproj
+      - name: Test
+        run: dotnet test --no-restore --verbosity normal --logger:"console;verbosity=normal" LWSKubernetesIntegrationTest/LWSKubernetesIntegrationTest.csproj
