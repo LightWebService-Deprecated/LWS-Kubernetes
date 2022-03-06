@@ -9,10 +9,10 @@ COPY ["LWSKubernetesService/LWSKubernetesService.csproj", "LWSKubernetesService/
 RUN dotnet restore "LWSKubernetesService/LWSKubernetesService.csproj"
 COPY . .
 WORKDIR "/src/LWSKubernetesService"
-RUN dotnet build "LWSKubernetesService.csproj" -c Release -o /app/build
+RUN dotnet build "LWSKubernetesService.csproj" -c Debug -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "LWSKubernetesService.csproj" -c Release -o /app/publish
+RUN dotnet publish "LWSKubernetesService.csproj" -c Debug -o /app/publish
 
 FROM base AS final
 WORKDIR /app
