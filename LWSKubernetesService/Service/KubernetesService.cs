@@ -16,12 +16,12 @@ public class KubernetesService
     public async Task HandleAccountCreationAsync(string accountCreatedMessage)
     {
         var accountCreated = JsonConvert.DeserializeObject<AccountCreatedMessage>(accountCreatedMessage);
-        await _kubernetesRepository.CreateNameSpaceAsync(accountCreated.AccountId);
+        await _kubernetesRepository.CreateNameSpaceAsync(accountCreated.AccountId.ToLower());
     }
 
     public async Task HandleAccountDeletionAsync(string accountDeletedMessage)
     {
         var accountDeleted = JsonConvert.DeserializeObject<AccountDeletedMessage>(accountDeletedMessage);
-        await _kubernetesRepository.DeleteNameSpaceAsync(accountDeleted.AccountId);
+        await _kubernetesRepository.DeleteNameSpaceAsync(accountDeleted.AccountId.ToLower());
     }
 }
