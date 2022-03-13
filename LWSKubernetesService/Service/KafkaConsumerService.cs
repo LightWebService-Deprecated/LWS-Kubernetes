@@ -33,26 +33,34 @@ public class KafkaConsumerService : BackgroundService
             {
                 var consumedMessage = consumerBuilder.Consume(stoppingToken);
                 _logger.LogInformation("Received Message: {message}", JsonConvert.SerializeObject(consumedMessage));
-                switch (consumedMessage.Topic)
+                try
                 {
-                    case "account.created":
+                    switch (consumedMessage.Topic)
                     {
-                        await _kubernetesService.HandleAccountCreationAsync(consumedMessage.Message.Value);
-                        break;
+                        case "account.created":
+                        {
+                            await _kubernetesService.HandleAccountCreationAsync(consumedMessage.Message.Value);
+                            break;
+                        }
+                        case "account.deleted":
+                        {
+                            await _kubernetesService.HandleAccountDeletionAsync(consumedMessage.Message.Value);
+                            break;
+                        }
                     }
-                    case "account.deleted":
-                    {
-                        await _kubernetesService.HandleAccountDeletionAsync(consumedMessage.Message.Value);
-                        break;
-                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError("Exception occurred while processing message: {message}", e.Message);
+                    _logger.LogError("{stackTrace}", e.StackTrace);
                 }
             }
         }
         catch (Exception e)
         {
-            _logger.LogError("Exception Occurred while receiving message");
-            _logger.LogError("{Message}", e.Message);
-            _logger.LogError("{stackTrace}", e.StackTrace);
+            _logger.LogCritical("Exception Occurred while receiving message");
+            _logger.LogCritical("{Message}", e.Message);
+            _logger.LogCritical("{stackTrace}", e.StackTrace);
             consumerBuilder.Close();
         }
     }
