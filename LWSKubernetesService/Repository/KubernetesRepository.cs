@@ -6,6 +6,7 @@ namespace LWSKubernetesService.Repository;
 public interface IKubernetesRepository
 {
     Task CreateNameSpaceAsync(string userId);
+    Task DeleteNameSpaceAsync(string userId);
 }
 
 public class KubernetesRepository : IKubernetesRepository
@@ -28,6 +29,12 @@ public class KubernetesRepository : IKubernetesRepository
             }
         };
 
-        await _kubernetesClient.CreateNamespaceWithHttpMessagesAsync(namespaceBody);
+        var response = await _kubernetesClient.CreateNamespaceWithHttpMessagesAsync(namespaceBody);
+        var test = 1;
+    }
+
+    public async Task DeleteNameSpaceAsync(string userId)
+    {
+        await _kubernetesClient.DeleteNamespaceWithHttpMessagesAsync(userId);
     }
 }

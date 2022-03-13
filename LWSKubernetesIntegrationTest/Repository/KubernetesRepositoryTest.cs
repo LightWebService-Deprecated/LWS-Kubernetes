@@ -96,12 +96,26 @@ public class KubernetesRepositoryTest : IDisposable
     [InlineData("testid")]
     [InlineData("testtwo")]
     [InlineData("somestrangeone")]
-    public async void Is_CreateNameSpace_Creates_Namespace_Given_Name(string namespaceName)
+    public async Task Is_CreateNameSpace_Creates_Namespace_Given_Name(string namespaceName)
     {
         // Do
         await _kubernetesRepository.CreateNameSpaceAsync(namespaceName);
 
         // Ensure
         await EnsureNamespaceCreated(namespaceName);
+    }
+
+    [Fact(DisplayName = "DeleteNameSpace: DeleteNameSpace should remove namespace well.")]
+    public async Task Is_DeleteNameSpace_Removes_Namespace_Well()
+    {
+        // Let
+        var namespaceName = "testnamespace";
+        await Is_CreateNameSpace_Creates_Namespace_Given_Name(namespaceName);
+
+        // Do
+        await _kubernetesRepository.DeleteNameSpaceAsync(namespaceName);
+
+        // Check
+        await EnsureNamespaceDeleted(namespaceName);
     }
 }

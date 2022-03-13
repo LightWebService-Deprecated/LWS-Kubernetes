@@ -25,7 +25,7 @@ public class KafkaConsumerService : BackgroundService
     {
         await Task.Yield();
         using var consumerBuilder = new ConsumerBuilder<Ignore, string>(_consumerConfig).Build();
-        consumerBuilder.Subscribe(new[] {"account.created"});
+        consumerBuilder.Subscribe(new[] {"account.created", "account.deleted"});
 
         try
         {
@@ -40,6 +40,11 @@ public class KafkaConsumerService : BackgroundService
                         await _kubernetesService.HandleAccountCreationAsync(consumedMessage.Message.Value);
                         break;
                     }
+                    case "account.deleted":
+                    {
+                        await _kubernetesService.HandleAccountDeletionAsync(consumedMessage.Message.Value);
+                        break;
+                    }
                 }
             }
         }
@@ -47,6 +52,7 @@ public class KafkaConsumerService : BackgroundService
         {
             _logger.LogError("Exception Occurred while receiving message");
             _logger.LogError("{Message}", e.Message);
+            _logger.LogError("{stackTrace}", e.StackTrace);
             consumerBuilder.Close();
         }
     }

@@ -38,4 +38,23 @@ public class KubernetesServiceTest
         // Verify
         _kubernetesRepository.VerifyAll();
     }
+
+    [Fact(DisplayName =
+        "HandleAccountDeletionAsync: HandleAccountDeletionAsync should deserialize object and remove namespace well.")]
+    public async Task Is_HandleAccountDeletionAsync_Deletes_Namespace_Well()
+    {
+        // Let
+        var message = new AccountDeletedMessage
+        {
+            AccountId = "test",
+            DeletedAt = DateTimeOffset.UtcNow
+        };
+        _kubernetesRepository.Setup(a => a.DeleteNameSpaceAsync(message.AccountId));
+
+        // Do
+        await TestKubernetesService.HandleAccountDeletionAsync(JsonConvert.SerializeObject(message));
+
+        // Verify
+        _kubernetesRepository.VerifyAll();
+    }
 }
