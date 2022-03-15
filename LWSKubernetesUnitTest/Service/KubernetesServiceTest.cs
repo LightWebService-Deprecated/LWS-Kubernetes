@@ -12,7 +12,9 @@ namespace LWSKubernetesUnitTest.Service;
 public class KubernetesServiceTest
 {
     private readonly Mock<IKubernetesRepository> _kubernetesRepository;
-    private KubernetesService TestKubernetesService => new KubernetesService(_kubernetesRepository.Object);
+
+    private KubernetesService TestKubernetesService =>
+        new KubernetesService(_kubernetesRepository.Object, new Mock<IDeploymentRepository>().Object);
 
     public KubernetesServiceTest()
     {

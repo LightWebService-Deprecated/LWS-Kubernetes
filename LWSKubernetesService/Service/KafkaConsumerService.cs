@@ -25,7 +25,7 @@ public class KafkaConsumerService : BackgroundService
     {
         await Task.Yield();
         using var consumerBuilder = new ConsumerBuilder<Ignore, string>(_consumerConfig).Build();
-        consumerBuilder.Subscribe(new[] {"account.created", "account.deleted"});
+        consumerBuilder.Subscribe(new[] {"account.created", "account.deleted", "deployment.created"});
 
         try
         {
@@ -45,6 +45,11 @@ public class KafkaConsumerService : BackgroundService
                         case "account.deleted":
                         {
                             await _kubernetesService.HandleAccountDeletionAsync(consumedMessage.Message.Value);
+                            break;
+                        }
+                        case "deployment.created":
+                        {
+                            await _kubernetesService.HandleDeploymentCreatedAsync(consumedMessage.Message.Value);
                             break;
                         }
                     }
