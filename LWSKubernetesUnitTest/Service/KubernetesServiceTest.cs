@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using LWSKubernetesService.Model;
-using LWSKubernetesService.Model.Event;
+using LWSEvent.Event.Account;
+using LWSEvent.Event.Deployment;
 using LWSKubernetesService.Repository;
 using LWSKubernetesService.Service;
 using Moq;
 using Newtonsoft.Json;
 using Xunit;
+using DeploymentType = LWSKubernetesService.Model.DeploymentType;
 
 namespace LWSKubernetesUnitTest.Service;
 
@@ -30,7 +31,7 @@ public class KubernetesServiceTest
     public async Task Is_HandleAccountCreationAsync_Creates_Namespace_Well()
     {
         // Let
-        var message = new AccountCreatedMessage
+        var message = new AccountCreatedEvent
         {
             AccountId = "testId",
             CreatedAt = DateTimeOffset.Now
@@ -38,7 +39,7 @@ public class KubernetesServiceTest
         _kubernetesRepository.Setup(a => a.CreateNameSpaceAsync(message.AccountId.ToLower()));
 
         // Do
-        await TestKubernetesService.HandleAccountCreationAsync(JsonConvert.SerializeObject(message));
+        await TestKubernetesService.HandleAccountCreationAsync(message);
 
         // Verify
         _kubernetesRepository.VerifyAll();
@@ -49,7 +50,7 @@ public class KubernetesServiceTest
     public async Task Is_HandleAccountDeletionAsync_Deletes_Namespace_Well()
     {
         // Let
-        var message = new AccountDeletedMessage
+        var message = new AccountDeletedEvent
         {
             AccountId = "test",
             DeletedAt = DateTimeOffset.UtcNow
@@ -57,7 +58,7 @@ public class KubernetesServiceTest
         _kubernetesRepository.Setup(a => a.DeleteNameSpaceAsync(message.AccountId));
 
         // Do
-        await TestKubernetesService.HandleAccountDeletionAsync(JsonConvert.SerializeObject(message));
+        await TestKubernetesService.HandleAccountDeletionAsync(message);
 
         // Verify
         _kubernetesRepository.VerifyAll();
@@ -74,9 +75,9 @@ public class KubernetesServiceTest
             ["AccountId"] = "test2"
         };
 
-        var message = new DeploymentCreatedMessage
+        var message = new DeploymentCreatedEvent
         {
-            DeploymentType = DeploymentType.UbuntuDeployment,
+            DeploymentType = LWSEvent.Event.Deployment.DeploymentType.UbuntuDeployment,
             AccountId = "kangdroid",
             CreatedAt = DateTimeOffset.UtcNow,
             DeploymentObject = deploymentObject
@@ -94,7 +95,7 @@ public class KubernetesServiceTest
             });
 
         // Do
-        await TestKubernetesService.HandleDeploymentCreatedAsync(JsonConvert.SerializeObject(message));
+        await TestKubernetesService.HandleDeploymentCreatedAsync(message);
 
         // Verify
         _deploymentRepository.VerifyAll();

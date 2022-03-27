@@ -1,5 +1,6 @@
 using System.Text.Json;
-using LWSKubernetesService.Model.Event;
+using LWSEvent.Event.Account;
+using LWSEvent.Event.Deployment;
 using LWSKubernetesService.Repository;
 using Newtonsoft.Json;
 
@@ -16,22 +17,19 @@ public class KubernetesService
         _deploymentRepository = deploymentRepository;
     }
 
-    public async Task HandleAccountCreationAsync(string accountCreatedMessage)
+    public async Task HandleAccountCreationAsync(AccountCreatedEvent accountCreated)
     {
-        var accountCreated = JsonConvert.DeserializeObject<AccountCreatedMessage>(accountCreatedMessage);
         await _kubernetesRepository.CreateNameSpaceAsync(accountCreated.AccountId.ToLower());
     }
 
-    public async Task HandleAccountDeletionAsync(string accountDeletedMessage)
+    public async Task HandleAccountDeletionAsync(AccountDeletedEvent accountDeletedEvent)
     {
-        var accountDeleted = JsonConvert.DeserializeObject<AccountDeletedMessage>(accountDeletedMessage);
-        await _kubernetesRepository.DeleteNameSpaceAsync(accountDeleted.AccountId.ToLower());
+        await _kubernetesRepository.DeleteNameSpaceAsync(accountDeletedEvent.AccountId.ToLower());
     }
 
-    public async Task HandleDeploymentCreatedAsync(string deploymentCreatedMessage)
+    public async Task HandleDeploymentCreatedAsync(DeploymentCreatedEvent deploymentCreatedMessage)
     {
-        var deploymentCreated = JsonConvert.DeserializeObject<DeploymentCreatedMessage>(deploymentCreatedMessage);
-        await _deploymentRepository.CreateDeploymentAsync(deploymentCreated.DeploymentObject.ToDictionary(
+        await _deploymentRepository.CreateDeploymentAsync(deploymentCreatedMessage.DeploymentObject.ToDictionary(
             key => key.Key.ToLower() == "id" ? "_id" : JsonNamingPolicy.CamelCase.ConvertName(key.Key),
             value => value.Value));
     }
